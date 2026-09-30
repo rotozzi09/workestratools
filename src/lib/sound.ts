@@ -55,3 +55,28 @@ export function playTonic(note: string) {
     // Audio unavailable — stay silent
   }
 }
+
+/** Play several MIDI notes together as a soft chord */
+export function playChord(midis: number[]) {
+  try {
+    if (!ctx) ctx = new AudioContext();
+    if (ctx.state === "suspended") void ctx.resume();
+    const t = ctx.currentTime;
+    const gain = ctx.createGain();
+    gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.12, t + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
+    midis.forEach((m, i) => {
+      const osc = ctx!.createOscillator();
+      osc.type = "triangle";
+      osc.frequency.value = 440 * Math.pow(2, (m - 69) / 12);
+      osc.connect(gain);
+      const s = t + i * 0.025; // gentle strum
+      osc.start(s);
+      osc.stop(t + 1.7);
+    });
+  } catch {
+    // Audio unavailable
+  }
+}
