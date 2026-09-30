@@ -32,3 +32,65 @@ export const mod = (n: number, m: number) => ((n % m) + m) % m;
 
 /** Normalize an angle in degrees to [-180, 180) */
 export const norm = (a: number) => mod(a + 180, 360) - 180;
+
+/* ---------- Scale / chord theory (major + harmonic minor) ---------- */
+export type Mode = "major" | "minor";
+
+const LETTERS = ["C", "D", "E", "F", "G", "A", "B"];
+const NAT = [0, 2, 4, 5, 7, 9, 11];
+const STEPS: Record<Mode, number[]> = {
+  major: [0, 2, 4, 5, 7, 9, 11],
+  minor: [0, 2, 3, 5, 7, 8, 11], // harmonic minor
+};
+export const MODE_DEGREES: Record<Mode, string[]> = {
+  major: ["I", "ii", "iii", "IV", "V", "vi", "vii°"],
+  minor: ["i", "ii°", "III+", "iv", "V", "VI", "vii°"],
+};
+const SUFFIX: Record<Mode, string[]> = {
+  major: ["", "m", "m", "", "", "m", "°"],
+  minor: ["m", "°", "+", "m", "", "", "°"],
+};
+
+const acc = (n: number) => (n > 0 ? "#".repeat(n) : "b".repeat(-n));
+
+export function pitchOf(name: string) {
+  const l = LETTERS.indexOf(name[0]!);
+  let p = NAT[l]!;
+  for (const c of name.slice(1)) p += c === "#" ? 1 : c === "b" ? -1 : 0;
+  return mod(p, 12);
+}
+
+export interface Scale {
+  tonic: string;
+  notes: string[];
+  chords: string[];
+  degrees: string[];
+  /** MIDI notes of each triad (root position, around C4) */
+  triads: number[][];
+}
+
+export function buildScale(field: KeyField, mode: Mode): Scale {
+  const tonic = mode === "major" ? field.major : field.minor.replace(/m$/, "");
+  const l0 = LETTERS.indexOf(tonic[0]!);
+  const p0 = pitchOf(tonic);
+  const pcs = STEPS[mode].map((s) => mod(p0 + s, 12));
+  const notes = pcs.map((pc, i) => {
+    const l = (l0 + i) % 7;
+    const diff = norm((pc - NAT[l]!) * 30) / 30; // -6..5
+    return LETTERS[l]! + acc(diff);
+  });
+  const chords = notes.map((n, i) => n + SUFFIX[mode][i]);
+  const triads = pcs.map((_, i) => {
+    const root = 60 + pcs[i]!;
+    const third = pcs[(i + 2) % 7]!;
+    const fifth = pcs[(i + 4) % 7]!;
+    const up = (pc: number, above: number) => {
+      let m = 60 + pc;
+      while (m <= above) m += 12;
+      return m;
+    };
+    const t = up(third, root);
+    return [root, t, up(fifth, t)];
+  });
+  return { tonic, notes, chords, degrees: MODE_DEGREES[mode], triads };
+}
