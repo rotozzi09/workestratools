@@ -1,24 +1,124 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { HarmonicWheel } from "@/components/HarmonicWheel";
+import { DEGREES, FIELDS, mod } from "@/lib/harmony";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Círculo de Campos Harmônicos" },
+      {
+        name: "description",
+        content:
+          "Gire o círculo e veja os acordes do campo harmônico de cada tonalidade — I, ii, iii, IV, V, vi e vii° no círculo de quintas.",
+      },
+      { property: "og:title", content: "Círculo de Campos Harmônicos" },
+      {
+        property: "og:description",
+        content: "Roda interativa dos campos harmônicos: gire e veja os acordes de cada tonalidade.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
+  const [index, setIndex] = useState(0);
+  const field = FIELDS[index]!;
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <main className="relative flex min-h-screen w-full flex-col items-center bg-background font-sans text-foreground">
+      <div className="flex w-full max-w-md flex-col items-center px-5 pb-8 pt-6">
+        {/* Header */}
+        <header className="flex w-full items-center justify-between animate-[slide-up_0.6s_var(--ease-out-expo)_both]">
+          <div className="flex flex-col">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-primary">
+              Círculo de Quintas · v1.0
+            </span>
+            <h1 className="font-display text-2xl uppercase leading-none tracking-tight">
+              Campos Harmônicos
+            </h1>
+          </div>
+          <div className="flex size-10 items-center justify-center rounded-full border border-border">
+            <div className="size-2 rounded-full bg-primary" />
+          </div>
+        </header>
+
+        {/* Wheel */}
+        <section className="mt-4 w-full">
+          <HarmonicWheel index={index} onIndexChange={setIndex} />
+        </section>
+
+        {/* Controls */}
+        <div className="mt-5 flex w-full items-center justify-between">
+          <button
+            onClick={() => setIndex((i) => mod(i - 1, 12))}
+            aria-label="Tonalidade anterior"
+            className="flex size-10 items-center justify-center rounded-full border border-border bg-card transition-transform active:scale-95"
+          >
+            <ChevronLeft className="size-4" />
+          </button>
+          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+            {String(index + 1).padStart(2, "0")} / 12 · gire o círculo
+          </span>
+          <button
+            onClick={() => setIndex((i) => mod(i + 1, 12))}
+            aria-label="Próxima tonalidade"
+            className="flex size-10 items-center justify-center rounded-full border border-border bg-card transition-transform active:scale-95"
+          >
+            <ChevronRight className="size-4" />
+          </button>
+        </div>
+
+        {/* Readout */}
+        <section className="mt-6 w-full space-y-4 animate-[slide-up_0.6s_var(--ease-out-expo)_both]">
+          <div className="flex items-end justify-between gap-2 border-b border-border pb-2">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Campo Diatônico
+            </span>
+            <span className="text-right font-mono text-[10px] uppercase tracking-widest text-primary">
+              {field.major}
+              {field.majorAlt ? ` / ${field.majorAlt}` : ""} · relativa {field.minor}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-7 gap-1.5">
+            {DEGREES.map((deg, di) => (
+              <div
+                key={deg}
+                className={
+                  di === 0
+                    ? "flex flex-col items-center rounded-sm bg-foreground py-3 text-background"
+                    : "flex flex-col items-center rounded-sm border border-border py-3"
+                }
+              >
+                <span
+                  className={`mb-1 font-mono text-[9px] ${di === 0 ? "opacity-60" : "text-muted-foreground"}`}
+                >
+                  {deg}
+                </span>
+                <span className={di === 0 ? "font-display text-lg" : "font-sans text-base font-semibold"}>
+                  {field.chords[di]}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="pt-4">
+          <div className="flex items-center gap-6 rounded-full bg-foreground/5 px-4 py-1.5">
+            <span className="font-mono text-[10px] uppercase tracking-tight">I · IV · V · vi</span>
+            <div className="h-3 w-px bg-border" />
+            <span className="font-mono text-[10px] uppercase tracking-tight text-primary">
+              12 tonalidades
+            </span>
+          </div>
+        </footer>
+      </div>
+    </main>
   );
 }
