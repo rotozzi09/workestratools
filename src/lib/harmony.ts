@@ -25,7 +25,7 @@ export const FIELDS: KeyField[] = [
   { major: "Ab", majorAlt: "G#", minor: "Fm", dim: "G°", chords: ["Ab", "Bbm", "Cm", "Db", "Eb", "Fm", "G°"] },
   { major: "Eb", minor: "Cm", dim: "D°", chords: ["Eb", "Fm", "Gm", "Ab", "Bb", "Cm", "D°"] },
   { major: "Bb", minor: "Gm", dim: "A°", chords: ["Bb", "Cm", "Dm", "Eb", "F", "Gm", "A°"] },
-  { major: "F", minor: "Am", dim: "E°", chords: ["F", "Gm", "Am", "Bb", "C", "Dm", "E°"] },
+  { major: "F", minor: "Dm", dim: "E°", chords: ["F", "Gm", "Am", "Bb", "C", "Dm", "E°"] },
 ];
 
 export const mod = (n: number, m: number) => ((n % m) + m) % m;
