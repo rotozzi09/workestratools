@@ -80,7 +80,7 @@ export function HarmonicWheel({ index, onIndexChange }: Props) {
     onIndexChange(mod(Math.round(-snapped / 30), 12));
   };
 
-  const field = FIELDS[index];
+  const field = FIELDS[index]!;
 
   return (
     <div

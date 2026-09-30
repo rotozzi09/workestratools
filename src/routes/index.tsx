@@ -27,7 +27,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [index, setIndex] = useState(0);
-  const field = FIELDS[index];
+  const field = FIELDS[index]!;
 
   return (
     <main className="relative flex min-h-screen w-full flex-col items-center bg-background font-sans text-foreground">
