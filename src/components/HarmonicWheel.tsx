@@ -120,13 +120,26 @@ export function HarmonicWheel({ index, onIndexChange }: Props) {
               opacity={0.45}
               preserveAspectRatio="xMidYMid slice"
             />
-            {/* Slice boundaries */}
+            {/* Slice boundaries — inner & outer rings: 12 slices of 30° */}
             {Array.from({ length: 12 }, (_, i) => {
-              const [x1, y1] = polar(R_HUB, i * 30 + 15);
-              const [x2, y2] = polar(R_OUTER, i * 30 + 15);
+              const a = i * 30 + 15;
+              const [x1, y1] = polar(R_HUB, a);
+              const [x2, y2] = polar(98, a);
+              const [x3, y3] = polar(130, a);
+              const [x4, y4] = polar(R_OUTER, a);
               return (
-                <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} className="stroke-border" strokeWidth={1} />
+                <g key={i}>
+                  <line x1={x1} y1={y1} x2={x2} y2={y2} className="stroke-border" strokeWidth={1} />
+                  <line x1={x3} y1={y3} x2={x4} y2={y4} className="stroke-border" strokeWidth={1} />
+                </g>
               );
+            })}
+            {/* Middle ring: 24 cells of 15° (iii at the key, vi just clockwise) */}
+            {Array.from({ length: 24 }, (_, j) => {
+              const a = j * 15 + 7.5;
+              const [x1, y1] = polar(98, a);
+              const [x2, y2] = polar(130, a);
+              return <line key={j} x1={x1} y1={y1} x2={x2} y2={y2} className="stroke-border" strokeWidth={1} />;
             })}
             {/* Ring separators */}
             {[R_HUB, 98, 130].map((r) => (
@@ -135,50 +148,64 @@ export function HarmonicWheel({ index, onIndexChange }: Props) {
             <circle cx={CX} cy={CX} r={R_OUTER} fill="none" className="stroke-foreground/30" strokeWidth={1.5} />
             {/* Labels — ordered in fifths, rotating with the face */}
             {FIELDS.map((f, i) => (
-              <g key={i} transform={`rotate(${i * 30} ${CX} ${CX})`}>
-                <text
-                  x={CX}
-                  y={CX - R_DIM_LABEL}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  className="fill-foreground font-mono"
-                  fontSize={11}
-                  letterSpacing={0.5}
-                >
-                  {f.dim}
-                </text>
-                <text
-                  x={CX}
-                  y={CX - R_MINOR_LABEL}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  className="fill-foreground font-sans font-semibold"
-                  fontSize={13}
-                >
-                  {f.minor}
-                </text>
-                <text
-                  x={CX}
-                  y={CX - R_MAJOR_LABEL}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  className="fill-foreground font-display"
-                  fontSize={26}
-                >
-                  {f.major}
-                </text>
-                {f.majorAlt && (
+              <g key={i}>
+                <g transform={`rotate(${i * 30} ${CX} ${CX})`}>
                   <text
                     x={CX}
-                    y={CX - R_MAJOR_LABEL + 16}
+                    y={CX - R_DIM_LABEL}
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    className="fill-muted-foreground font-mono"
-                    fontSize={8}
+                    className="fill-foreground font-mono"
+                    fontSize={11}
+                    letterSpacing={0.5}
                   >
-                    {`/${f.majorAlt}`}
+                    {f.dim}
                   </text>
-                )}
+                  <text
+                    x={CX}
+                    y={CX - R_MINOR_LABEL}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    className="fill-foreground font-sans font-semibold"
+                    fontSize={10.5}
+                  >
+                    {f.chords[2]}
+                  </text>
+                  <text
+                    x={CX}
+                    y={CX - R_MAJOR_LABEL}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    className="fill-foreground font-display"
+                    fontSize={26}
+                  >
+                    {f.major}
+                  </text>
+                  {f.majorAlt && (
+                    <text
+                      x={CX}
+                      y={CX - R_MAJOR_LABEL + 16}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      className="fill-muted-foreground font-mono"
+                      fontSize={8}
+                    >
+                      {`/${f.majorAlt}`}
+                    </text>
+                  )}
+                </g>
+                <g transform={`rotate(${i * 30 + 15} ${CX} ${CX})`}>
+                  <text
+                    x={CX}
+                    y={CX - R_MINOR_LABEL}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    className="fill-foreground font-sans font-semibold"
+                    fontSize={10.5}
+                  >
+                    {f.chords[5]}
+                  </text>
+                </g>
               </g>
             ))}
           </g>
@@ -188,7 +215,7 @@ export function HarmonicWheel({ index, onIndexChange }: Props) {
       {/* Static viewfinder window (IV · I · V / ii · iii · vi / vii°) */}
       <svg viewBox="0 0 340 340" className="pointer-events-none absolute inset-0 size-full">
         <path d={sector(R_HUB, 98, -46, 46)} className="fill-primary/10 stroke-primary/50" strokeWidth={1} />
-        <path d={sector(98, 130, -46, 46)} className="fill-primary/10 stroke-primary/50" strokeWidth={1} />
+        <path d={sector(98, 130, -23, 23)} className="fill-primary/10 stroke-primary/50" strokeWidth={1} />
         <path d={sector(130, R_OUTER, -14, 14)} className="fill-primary/10 stroke-primary/50" strokeWidth={1} />
         <polygon points={`${CX},3 ${CX - 5},13 ${CX + 5},13`} className="fill-primary" />
       </svg>
