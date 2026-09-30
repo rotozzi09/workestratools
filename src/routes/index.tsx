@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Volume2, VolumeX } from "lucide-react";
 import { HarmonicWheel } from "@/components/HarmonicWheel";
 import { DEGREES, FIELDS, mod } from "@/lib/harmony";
+import { playTonic } from "@/lib/sound";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,7 +28,15 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [index, setIndex] = useState(0);
+  const [soundOn, setSoundOn] = useState(true);
+  const prevIndex = useRef(index);
   const field = FIELDS[index]!;
+
+  useEffect(() => {
+    if (prevIndex.current === index) return;
+    prevIndex.current = index;
+    if (soundOn) playTonic(field.major);
+  }, [index, soundOn, field.major]);
 
   return (
     <main className="relative flex min-h-screen w-full flex-col items-center bg-background font-sans text-foreground">
@@ -42,9 +51,17 @@ function Index() {
               Campos Harmônicos
             </h1>
           </div>
-          <div className="flex size-10 items-center justify-center rounded-full border border-border">
-            <div className="size-2 rounded-full bg-primary" />
-          </div>
+          <button
+            onClick={() => setSoundOn((s) => !s)}
+            aria-label={soundOn ? "Desativar som" : "Ativar som"}
+            className="flex size-10 items-center justify-center rounded-full border border-border bg-card transition-transform active:scale-95"
+          >
+            {soundOn ? (
+              <Volume2 className="size-4 text-primary" />
+            ) : (
+              <VolumeX className="size-4 text-muted-foreground" />
+            )}
+          </button>
         </header>
 
         {/* Wheel */}
