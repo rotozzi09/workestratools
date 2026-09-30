@@ -110,8 +110,8 @@ function Index() {
 
         {/* Footer */}
         <footer className="pt-4">
-          <div className="flex items-center gap-6 rounded-full bg-foreground/5 px-4 py-1.5">
-            <span className="font-mono text-[10px] uppercase tracking-tight">I · IV · V · vi</span>
+          <div className="flex items-center gap-3 rounded-full bg-foreground/5 px-4 py-1.5">
+            <span className="font-mono text-[10px] tracking-tight">I · ii · iii · IV · V · vi · vii°</span>
             <div className="h-3 w-px bg-border" />
             <span className="font-mono text-[10px] uppercase tracking-tight text-primary">
               12 tonalidades
