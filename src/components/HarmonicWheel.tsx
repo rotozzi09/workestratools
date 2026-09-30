@@ -15,9 +15,9 @@ interface Props {
   onIndexChange: (index: number) => void;
 }
 
-function polar(r: number, deg: number): [number, number] {
+function polar(r: number, deg: number): [string, string] {
   const a = ((deg - 90) * Math.PI) / 180;
-  return [CX + r * Math.cos(a), CX + r * Math.sin(a)];
+  return [(CX + r * Math.cos(a)).toFixed(2), (CX + r * Math.sin(a)).toFixed(2)];
 }
 
 /** Annular sector path between radii r0..r1 spanning angles a0..a1 (degrees, 0 = top) */
